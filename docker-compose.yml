@@ -1,0 +1,31 @@
+version: '3.9'
+services:
+  nestjs-server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - '3000:3000'
+    volumes:
+      - ./src:/app/src
+    depends_on:
+      - my-sql
+    networks:
+      - nodejss
+
+  my-sql:
+    image: mysql:8.0
+    ports:
+      - '3306:3306'
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: todo_server
+      MYSQL_USER: phat
+      MYSQL_PASSWORD: phat
+    volumes:
+      - ./database/mysql:/var/lib/mysql
+    networks:
+      - nodejss
+
+networks:
+  nodejss:
