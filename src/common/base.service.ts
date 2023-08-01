@@ -22,7 +22,11 @@ export class BaseService<Entity extends BaseEntity>
   }
 
   async findById(id: any): Promise<Entity> {
-    return await this.repository.findOne(id);
+    return await this.repository.findOne({
+      where: {
+        id: id,
+      },
+    });
   }
 
   async deleteById(id: any): Promise<DeleteResult> {
