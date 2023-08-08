@@ -1,5 +1,12 @@
 import { BaseEntity } from 'src/common/base.entity';
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { UserEntity } from 'src/user/user.entity';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 
 @Entity({
   name: 'task',
@@ -10,4 +17,8 @@ export class TaskEntity extends BaseEntity {
 
   @Column()
   isCompleted: boolean;
+
+  @ManyToOne((type) => UserEntity, (user) => user.tasks)
+  @JoinColumn({ name: 'user_id' })
+  user: UserEntity;
 }

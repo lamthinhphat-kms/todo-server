@@ -3,7 +3,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { TaskModule } from './task/task.module';
 import { TaskEntity } from './task/task.entity';
 import { AuthModule } from './auth/auth.module';
-import { AuthEntity } from './auth/auth.entity';
+import { UserEntity } from './user/user.entity';
+import { UserModule } from './user/user.module';
 
 @Module({
   imports: [
@@ -14,11 +15,12 @@ import { AuthEntity } from './auth/auth.entity';
       username: 'root',
       password: 'root',
       database: 'todo_server',
-      entities: [TaskEntity, AuthEntity],
+      entities: [TaskEntity, UserEntity],
       synchronize: true,
     }),
     TaskModule,
     AuthModule,
+    UserModule,
   ],
   controllers: [],
   providers: [],

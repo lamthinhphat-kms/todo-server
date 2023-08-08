@@ -7,18 +7,27 @@ import {
   Param,
   Post,
   Put,
+  UseGuards,
 } from '@nestjs/common';
 import { TaskDto } from './task.dto';
 import { TaskService } from './task.service';
 import { DeleteResult } from 'typeorm';
+import { GetUser } from 'src/auth/decorator/get-user.decorator';
+import { JwtGuard } from 'src/auth/guard/jwt.guard';
+import { UserEntity } from 'src/user/user.entity';
 
+@UseGuards(JwtGuard)
 @Controller('tasks')
 export class TaskController {
   constructor(private readonly taskService: TaskService) {}
 
   @Post()
-  async createTask(@Body() task: TaskDto): Promise<TaskDto> {
-    const taskCreated = await this.taskService.save(task);
+  async createTask(
+    @GetUser() user: UserEntity,
+    @Body() task: TaskDto,
+  ): Promise<TaskDto> {
+    console.log(task);
+    const taskCreated = await this.taskService.createTask(user.id, task);
     return plainToInstance(TaskDto, taskCreated, {
       excludeExtraneousValues: true,
     });
@@ -26,18 +35,23 @@ export class TaskController {
 
   @Put(':id')
   async updateTaskById(
-    @Param('id') id: number,
+    @Param('id') taskId: number,
+    @GetUser() user: UserEntity,
     @Body() taskDto: TaskDto,
   ): Promise<TaskDto> {
-    const taskUpdated = await this.taskService.update(id, taskDto);
+    const taskUpdated = await this.taskService.updateTask(
+      user.id,
+      taskId,
+      taskDto,
+    );
     return plainToInstance(TaskDto, taskUpdated, {
       excludeExtraneousValues: true,
     });
   }
 
   @Get()
-  async getListTask(): Promise<TaskDto[]> {
-    const taskList = await this.taskService.findAll();
+  async getListTask(@GetUser() user: UserEntity) {
+    const taskList = await this.taskService.findAllTask(user.id);
 
     return plainToInstance(TaskDto, taskList, {
       excludeExtraneousValues: true,
@@ -45,15 +59,18 @@ export class TaskController {
   }
 
   @Get(':id')
-  async getTaskById(@Param('id') id: number): Promise<TaskDto> {
-    const taskFound = await this.taskService.findById(id);
+  async getTaskById(@Param('id') taskId: number, @GetUser() user: UserEntity) {
+    const taskFound = await this.taskService.findTaskById(user.id, taskId);
     return plainToInstance(TaskDto, taskFound, {
       excludeExtraneousValues: true,
     });
   }
 
   @Delete(':id')
-  async deleteTaskById(@Param('id') id: number): Promise<DeleteResult> {
-    return await this.taskService.deleteById(id);
+  async deleteTaskById(
+    @Param('id') taskId: number,
+    @GetUser() user: UserEntity,
+  ) {
+    return await this.taskService.deleteTaskById(user.id, taskId);
   }
 }

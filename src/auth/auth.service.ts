@@ -1,26 +1,66 @@
-import { Injectable } from '@nestjs/common';
+import {
+  ConflictException,
+  ForbiddenException,
+  Injectable,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { AuthEntity } from './auth.entity';
-import { Repository } from 'typeorm';
+import { QueryFailedError, Repository } from 'typeorm';
 import { BaseService } from 'src/common/base.service';
-import { AuthDto } from './auth.dto';
 import * as argon from 'argon2';
+import { plainToInstance } from 'class-transformer';
+import { JwtService } from '@nestjs/jwt';
+import { UserEntity } from 'src/user/user.entity';
+import { UserDto } from 'src/user/user.dto';
 
 @Injectable()
-export class AuthService extends BaseService<AuthEntity> {
+export class AuthService extends BaseService<UserEntity> {
   constructor(
-    @InjectRepository(AuthEntity)
-    private readonly authRepository: Repository<AuthEntity>,
+    @InjectRepository(UserEntity)
+    private readonly userRepository: Repository<UserEntity>,
+    private jwt: JwtService,
   ) {
-    super(authRepository);
+    super(userRepository);
   }
-  signin() {}
-  async signup(authDto: AuthDto) {
-    const hash = await argon.hash(authDto.password);
-    const user = await this.save({
-      email: authDto.email,
-      hashPassword: hash,
+  async signin(userDto: UserDto) {
+    const user = await this.userRepository.findOne({
+      where: {
+        email: userDto.email,
+      },
     });
-    return user;
+    if (!user) throw new ForbiddenException('Invalid email');
+    const pwMathches = await argon.verify(user.hashPassword, userDto.password);
+    if (!pwMathches) throw new ForbiddenException('Invalid password');
+
+    return this.signToken(user.id, user.email);
+  }
+
+  async signup(userDto: UserDto) {
+    try {
+      const hash = await argon.hash(userDto.password);
+      const user = await this.save({
+        email: userDto.email,
+        hashPassword: hash,
+      });
+      return plainToInstance(UserDto, user, {
+        excludeExtraneousValues: true,
+      });
+    } catch (error) {
+      if (error.code === 'ER_DUP_ENTRY') {
+        throw new ConflictException('Email address already exists');
+      }
+      throw error;
+    }
+  }
+
+  async signToken(userId: number, email: string) {
+    const payload = {
+      sub: userId,
+      email: email,
+    };
+    return {
+      access_token: await this.jwt.signAsync(payload, {
+        secret: 'super-secret',
+      }),
+    };
   }
 }

@@ -1,12 +1,14 @@
 import { BaseEntity } from 'src/common/base.entity';
-import { Column, Entity } from 'typeorm';
+import { TaskEntity } from 'src/task/task.entity';
+import { Column, Entity, OneToMany } from 'typeorm';
 
 @Entity({
-  name: 'auth',
+  name: 'user',
 })
-export class AuthEntity extends BaseEntity {
+export class UserEntity extends BaseEntity {
   @Column({
     name: 'email',
+    unique: true,
   })
   email: string;
 
@@ -26,4 +28,7 @@ export class AuthEntity extends BaseEntity {
     nullable: true,
   })
   lastName: string;
+
+  @OneToMany((type) => TaskEntity, (task) => task.user)
+  tasks: TaskEntity[];
 }
