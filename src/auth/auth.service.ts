@@ -31,7 +31,7 @@ export class AuthService extends BaseService<UserEntity> {
     const pwMathches = await argon.verify(user.hashPassword, userDto.password);
     if (!pwMathches) throw new ForbiddenException('Invalid password');
 
-    return this.signToken(user.id, user.email);
+    return await this.signToken(user.id, user.email, false);
   }
 
   async signup(userDto: UserDto) {
@@ -52,15 +52,31 @@ export class AuthService extends BaseService<UserEntity> {
     }
   }
 
-  async signToken(userId: number, email: string) {
+  async refreshToken(user: UserEntity) {
+    return await this.signToken(user.id, user.email, true);
+  }
+
+  async signToken(userId: number, email: string, isRefresh: boolean) {
     const payload = {
       sub: userId,
       email: email,
     };
-    return {
-      access_token: await this.jwt.signAsync(payload, {
-        secret: 'super-secret',
-      }),
-    };
+    return isRefresh
+      ? {
+          access_token: await this.jwt.signAsync(payload, {
+            secret: 'super-secret',
+            expiresIn: '1d',
+          }),
+        }
+      : {
+          access_token: await this.jwt.signAsync(payload, {
+            secret: 'super-secret',
+            expiresIn: '1d',
+          }),
+          refresh_token: await this.jwt.signAsync(payload, {
+            secret: 'super-secret',
+            expiresIn: '7d',
+          }),
+        };
   }
 }

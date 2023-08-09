@@ -1,10 +1,11 @@
-import { Body, Injectable } from '@nestjs/common';
+import { Body, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { TaskEntity } from './task.entity';
 import { Repository } from 'typeorm';
 import { TaskDto } from './task.dto';
 import { plainToInstance } from 'class-transformer';
 import { BaseService } from 'src/common/base.service';
+import { NotFoundError } from 'rxjs';
 
 @Injectable()
 export class TaskService extends BaseService<TaskEntity> {
@@ -23,15 +24,36 @@ export class TaskService extends BaseService<TaskEntity> {
       },
     });
 
-    return await this.taskRepository.save(taskEntity);
+    return plainToInstance(
+      TaskDto,
+      await this.taskRepository.save(taskEntity),
+      {
+        excludeExtraneousValues: true,
+      },
+    );
   }
 
-  async updateTask(userId: number, taskId: number, task: TaskDto) {}
+  async updateTask(userId: number, taskId: number, task: TaskDto) {
+    try {
+      const updateResult = await this.taskRepository.update(
+        {
+          id: taskId,
+          user: {
+            id: userId,
+          },
+        },
+        task,
+      );
+      if (updateResult.affected == 0)
+        throw new NotFoundException('Update failed');
+      return { message: 'Update task successfully' };
+    } catch (error) {
+      throw error;
+    }
+  }
 
   async findAllTask(userId: number) {
-    console.log(userId);
-    return this.taskRepository.find({
-      relations: ['user'],
+    return await this.taskRepository.find({
       where: {
         user: {
           id: userId,
@@ -40,9 +62,32 @@ export class TaskService extends BaseService<TaskEntity> {
     });
   }
 
-  async findTaskById(userId: number, taskId: number) {}
+  async findTaskById(userId: number, taskId: number) {
+    return await this.taskRepository.findOne({
+      where: {
+        id: taskId,
+        user: {
+          id: userId,
+        },
+      },
+    });
+  }
 
-  async deleteTaskById(userId: number, taskId: number) {}
+  async deleteTaskById(userId: number, taskId: number) {
+    return await this.taskRepository.delete({
+      id: taskId,
+      user: {
+        id: userId,
+      },
+    });
+  }
 
-  async softDeleteTaskById(userId: number, taskId: number) {}
+  async softDeleteTaskById(userId: number, taskId: number) {
+    return await this.taskRepository.softDelete({
+      id: taskId,
+      user: {
+        id: userId,
+      },
+    });
+  }
 }

@@ -26,11 +26,7 @@ export class TaskController {
     @GetUser() user: UserEntity,
     @Body() task: TaskDto,
   ): Promise<TaskDto> {
-    console.log(task);
-    const taskCreated = await this.taskService.createTask(user.id, task);
-    return plainToInstance(TaskDto, taskCreated, {
-      excludeExtraneousValues: true,
-    });
+    return await this.taskService.createTask(user.id, task);
   }
 
   @Put(':id')
@@ -38,15 +34,8 @@ export class TaskController {
     @Param('id') taskId: number,
     @GetUser() user: UserEntity,
     @Body() taskDto: TaskDto,
-  ): Promise<TaskDto> {
-    const taskUpdated = await this.taskService.updateTask(
-      user.id,
-      taskId,
-      taskDto,
-    );
-    return plainToInstance(TaskDto, taskUpdated, {
-      excludeExtraneousValues: true,
-    });
+  ) {
+    return await this.taskService.updateTask(user.id, taskId, taskDto);
   }
 
   @Get()
