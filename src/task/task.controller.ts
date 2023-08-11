@@ -12,9 +12,9 @@ import {
 import { TaskDto } from './task.dto';
 import { TaskService } from './task.service';
 import { DeleteResult } from 'typeorm';
-import { GetUser } from 'src/auth/decorator/get-user.decorator';
-import { JwtGuard } from 'src/auth/guard/jwt.guard';
+import { GetUser } from 'src/common/decorator/get-user.decorator';
 import { UserEntity } from 'src/user/user.entity';
+import { JwtGuard } from 'src/common/guard/jwt.guard';
 
 @UseGuards(JwtGuard)
 @Controller('tasks')

@@ -1,10 +1,10 @@
-import { GetUser } from './../auth/decorator/get-user.decorator';
+import { GetUser } from '../common/decorator/get-user.decorator';
 import { Controller, Get, Req, UseGuards } from '@nestjs/common';
 import { UserService } from './user.service';
 import { plainToInstance } from 'class-transformer';
 import { UserDto } from './user.dto';
-import { JwtGuard } from 'src/auth/guard/jwt.guard';
 import { UserEntity } from './user.entity';
+import { JwtGuard } from 'src/common/guard/jwt.guard';
 
 @UseGuards(JwtGuard)
 @Controller('user')

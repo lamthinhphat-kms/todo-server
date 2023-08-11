@@ -1,5 +1,5 @@
 import { Expose } from 'class-transformer';
-import { IsNotEmpty } from 'class-validator';
+import { IsNotEmpty, IsOptional } from 'class-validator';
 import { BaseDto } from 'src/common/base.dto';
 
 export class UserDto extends BaseDto {
@@ -11,8 +11,10 @@ export class UserDto extends BaseDto {
   password: string;
 
   @Expose()
+  @IsOptional()
   firstName: string;
 
   @Expose()
+  @IsOptional()
   lastName: string;
 }

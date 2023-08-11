@@ -25,6 +25,7 @@ export class AuthService extends BaseService<UserEntity> {
     const user = await this.userRepository.findOne({
       where: {
         email: userDto.email,
+        isGoogle: false,
       },
     });
     if (!user) throw new ForbiddenException('Invalid email');
@@ -54,6 +55,38 @@ export class AuthService extends BaseService<UserEntity> {
 
   async refreshToken(user: UserEntity) {
     return await this.signToken(user.id, user.email, true);
+  }
+
+  async googleRedirect(req: any) {
+    if (!req.user) {
+      return 'No user from google';
+    }
+    return {
+      message: 'User Info from Google',
+      user: req.user,
+    };
+  }
+
+  async loginWithGoogle(userInfo: UserDto) {
+    const user = await this.userRepository.findOne({
+      where: {
+        email: userInfo.email,
+      },
+    });
+    if (!user) {
+      const cretedUser = await this.save({
+        email: userInfo.email,
+        firstName: userInfo.firstName,
+        lastName: userInfo.lastName,
+        isGoogle: true,
+      });
+      return await this.signToken(cretedUser.id, cretedUser.email, false);
+    } else {
+      if (!user.isGoogle) {
+        throw new ConflictException('Email address already exists');
+      }
+      return await this.signToken(user.id, user.email, false);
+    }
   }
 
   async signToken(userId: number, email: string, isRefresh: boolean) {

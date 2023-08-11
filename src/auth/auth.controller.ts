@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Get,
   HttpCode,
   HttpStatus,
   Post,
@@ -10,9 +11,10 @@ import {
 import { AuthService } from './auth.service';
 import { plainToInstance } from 'class-transformer';
 import { UserDto } from 'src/user/user.dto';
-import { RefreshGuard } from './guard/refresh.guard';
 import { UserEntity } from 'src/user/user.entity';
-import { GetUser } from './decorator/get-user.decorator';
+import { GetUser } from '../common/decorator/get-user.decorator';
+import { RefreshGuard } from 'src/common/guard/refresh.guard';
+import { GoogleGuard } from 'src/common/guard/google.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -27,6 +29,23 @@ export class AuthController {
   @Post('signin')
   signin(@Body() userDto: UserDto) {
     return this.authService.signin(userDto);
+  }
+
+  @UseGuards(GoogleGuard)
+  @Get('google')
+  async googleAuth() {}
+
+  @UseGuards(GoogleGuard)
+  @Get('google/callback')
+  async redirectedGoogleAuth(@Req() req) {
+    return await this.authService.googleRedirect(req);
+  }
+
+  @Post('google/login/mobile')
+  async googleInfo(@Body() userInfo: UserDto) {
+    console.log('123');
+    console.log(UserDto);
+    return await this.authService.loginWithGoogle(userInfo);
   }
 
   @UseGuards(RefreshGuard)

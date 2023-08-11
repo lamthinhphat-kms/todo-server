@@ -14,6 +14,7 @@ export class UserEntity extends BaseEntity {
 
   @Column({
     name: 'password',
+    nullable: true,
   })
   hashPassword: string;
 
@@ -28,6 +29,12 @@ export class UserEntity extends BaseEntity {
     nullable: true,
   })
   lastName: string;
+
+  @Column({
+    name: 'is_google',
+    default: false,
+  })
+  isGoogle: boolean;
 
   @OneToMany((type) => TaskEntity, (task) => task.user)
   tasks: TaskEntity[];
