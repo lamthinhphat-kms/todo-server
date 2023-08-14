@@ -11,7 +11,7 @@ import { JwtGuard } from 'src/common/guard/jwt.guard';
 export class UserController {
   constructor(private userService: UserService) {}
   @Get('me')
-  async getMe(@GetUser() user: UserEntity) {
+  async getMe(@GetUser() user: UserDto) {
     return plainToInstance(UserDto, await this.userService.findById(user.id), {
       excludeExtraneousValues: true,
     });

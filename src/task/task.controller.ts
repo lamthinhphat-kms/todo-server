@@ -15,6 +15,7 @@ import { DeleteResult } from 'typeorm';
 import { GetUser } from 'src/common/decorator/get-user.decorator';
 import { UserEntity } from 'src/user/user.entity';
 import { JwtGuard } from 'src/common/guard/jwt.guard';
+import { UserDto } from 'src/user/user.dto';
 
 @UseGuards(JwtGuard)
 @Controller('tasks')
@@ -32,14 +33,14 @@ export class TaskController {
   @Put(':id')
   async updateTaskById(
     @Param('id') taskId: number,
-    @GetUser() user: UserEntity,
+    @GetUser() user: UserDto,
     @Body() taskDto: TaskDto,
   ) {
     return await this.taskService.updateTask(user.id, taskId, taskDto);
   }
 
   @Get()
-  async getListTask(@GetUser() user: UserEntity) {
+  async getListTask(@GetUser() user: UserDto) {
     const taskList = await this.taskService.findAllTask(user.id);
 
     return plainToInstance(TaskDto, taskList, {

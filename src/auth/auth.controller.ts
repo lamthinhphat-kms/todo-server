@@ -43,15 +43,13 @@ export class AuthController {
 
   @Post('google/login/mobile')
   async googleInfo(@Body() userInfo: UserDto) {
-    console.log('123');
-    console.log(UserDto);
     return await this.authService.loginWithGoogle(userInfo);
   }
 
   @UseGuards(RefreshGuard)
   @HttpCode(HttpStatus.OK)
   @Post('refresh')
-  refreshToken(@GetUser('user') user: UserEntity) {
+  refreshToken(@GetUser('user') user: UserDto) {
     return this.authService.refreshToken(user);
   }
 }

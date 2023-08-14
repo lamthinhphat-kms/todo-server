@@ -6,17 +6,21 @@ import { TaskDto } from './task.dto';
 import { plainToInstance } from 'class-transformer';
 import { BaseService } from 'src/common/base.service';
 import { NotFoundError } from 'rxjs';
+import { LoggerService } from 'src/logger/logger.service';
 
 @Injectable()
 export class TaskService extends BaseService<TaskEntity> {
   constructor(
     @InjectRepository(TaskEntity)
     private readonly taskRepository: Repository<TaskEntity>,
+    private logger: LoggerService,
   ) {
     super(taskRepository);
+    this.logger.setContext(TaskService.name);
   }
 
   async createTask(userId: number, task: TaskDto) {
+    this.logger.verbose(`Create task: ${task} for user ${userId}`);
     const taskEntity = this.taskRepository.create({
       ...task,
       user: {
@@ -35,6 +39,7 @@ export class TaskService extends BaseService<TaskEntity> {
 
   async updateTask(userId: number, taskId: number, task: TaskDto) {
     try {
+      this.logger.verbose(`Update task: ${task} for user ${userId}`);
       const updateResult = await this.taskRepository.update(
         {
           id: taskId,
@@ -53,6 +58,7 @@ export class TaskService extends BaseService<TaskEntity> {
   }
 
   async findAllTask(userId: number) {
+    this.logger.verbose(`Find all tasks for user ${userId}`);
     return await this.taskRepository.find({
       where: {
         user: {
@@ -63,6 +69,7 @@ export class TaskService extends BaseService<TaskEntity> {
   }
 
   async findTaskById(userId: number, taskId: number) {
+    this.logger.verbose(`Find tasks by id ${taskId} for user ${userId}`);
     return await this.taskRepository.findOne({
       where: {
         id: taskId,
@@ -74,6 +81,7 @@ export class TaskService extends BaseService<TaskEntity> {
   }
 
   async deleteTaskById(userId: number, taskId: number) {
+    this.logger.verbose(`delete tasks by id ${taskId} for user ${userId}`);
     return await this.taskRepository.delete({
       id: taskId,
       user: {

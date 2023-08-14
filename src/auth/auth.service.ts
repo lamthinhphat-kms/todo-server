@@ -53,7 +53,7 @@ export class AuthService extends BaseService<UserEntity> {
     }
   }
 
-  async refreshToken(user: UserEntity) {
+  async refreshToken(user: UserDto) {
     return await this.signToken(user.id, user.email, true);
   }
 
@@ -97,17 +97,17 @@ export class AuthService extends BaseService<UserEntity> {
     return isRefresh
       ? {
           access_token: await this.jwt.signAsync(payload, {
-            secret: 'super-secret',
+            secret: process.env.SECRET,
             expiresIn: '1d',
           }),
         }
       : {
           access_token: await this.jwt.signAsync(payload, {
-            secret: 'super-secret',
+            secret: process.env.SECRET,
             expiresIn: '1d',
           }),
           refresh_token: await this.jwt.signAsync(payload, {
-            secret: 'super-secret',
+            secret: process.env.SECRET,
             expiresIn: '7d',
           }),
         };
