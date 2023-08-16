@@ -42,8 +42,8 @@ export class AuthController {
   }
 
   @Post('google/login/mobile')
-  async googleInfo(@Body() userInfo: UserDto) {
-    return await this.authService.loginWithGoogle(userInfo);
+  async googleInfo(@Body('token') token: string) {
+    return await this.authService.loginWithGoogle(token);
   }
 
   @UseGuards(RefreshGuard)

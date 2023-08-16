@@ -11,7 +11,12 @@ import { plainToInstance } from 'class-transformer';
 import { JwtService } from '@nestjs/jwt';
 import { UserEntity } from 'src/user/user.entity';
 import { UserDto } from 'src/user/user.dto';
+import { IdTokenClient, OAuth2Client } from 'google-auth-library';
 
+const client = new OAuth2Client(
+  process.env.GOOGLE_CLIENT_ID,
+  process.env.GOOGLE_CLIENT_SECRET,
+);
 @Injectable()
 export class AuthService extends BaseService<UserEntity> {
   constructor(
@@ -67,7 +72,16 @@ export class AuthService extends BaseService<UserEntity> {
     };
   }
 
-  async loginWithGoogle(userInfo: UserDto) {
+  async loginWithGoogle(token: string) {
+    const ticket = await client.verifyIdToken({
+      idToken: token,
+      audience: process.env.GOOGLE_CLIENT_ID,
+    });
+    const userInfo = new UserDto();
+    userInfo.email = ticket.getPayload().email;
+    userInfo.firstName = ticket.getPayload().family_name;
+    userInfo.lastName = ticket.getPayload().given_name;
+    console.log(userInfo);
     const user = await this.userRepository.findOne({
       where: {
         email: userInfo.email,
