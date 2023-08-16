@@ -41,6 +41,11 @@ export class AuthController {
     return await this.authService.googleRedirect(req);
   }
 
+  @Post('google/login/web')
+  async googleInfoWeb(@Body('token') token: string) {
+    return await this.authService.loginWithGoogleWeb(token);
+  }
+
   @Post('google/login/mobile')
   async googleInfo(@Body('token') token: string) {
     return await this.authService.loginWithGoogle(token);

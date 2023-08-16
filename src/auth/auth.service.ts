@@ -13,12 +13,13 @@ import { UserEntity } from 'src/user/user.entity';
 import { UserDto } from 'src/user/user.dto';
 import { IdTokenClient, OAuth2Client } from 'google-auth-library';
 
-const client = new OAuth2Client(
-  process.env.GOOGLE_CLIENT_ID,
-  process.env.GOOGLE_CLIENT_SECRET,
-);
 @Injectable()
 export class AuthService extends BaseService<UserEntity> {
+  private client = new OAuth2Client(
+    process.env.GOOGLE_CLIENT_ID,
+    process.env.GOOGLE_CLIENT_SECRET,
+    'postmessage',
+  );
   constructor(
     @InjectRepository(UserEntity)
     private readonly userRepository: Repository<UserEntity>,
@@ -73,7 +74,7 @@ export class AuthService extends BaseService<UserEntity> {
   }
 
   async loginWithGoogle(token: string) {
-    const ticket = await client.verifyIdToken({
+    const ticket = await this.client.verifyIdToken({
       idToken: token,
       audience: process.env.GOOGLE_CLIENT_ID,
     });
@@ -101,6 +102,40 @@ export class AuthService extends BaseService<UserEntity> {
       }
       return await this.signToken(user.id, user.email, false);
     }
+  }
+
+  async loginWithGoogleWeb(code: string) {
+    try {
+      const data = await this.client.getToken(code);
+      return await this.loginWithGoogle(data.tokens.id_token);
+    } catch (error) {
+      throw error;
+    }
+
+    // const userInfo = new UserDto();
+    // userInfo.email = ticket.getPayload().email;
+    // userInfo.firstName = ticket.getPayload().family_name;
+    // userInfo.lastName = ticket.getPayload().given_name;
+    // console.log(userInfo);
+    // const user = await this.userRepository.findOne({
+    //   where: {
+    //     email: userInfo.email,
+    //   },
+    // });
+    // if (!user) {
+    //   const cretedUser = await this.save({
+    //     email: userInfo.email,
+    //     firstName: userInfo.firstName,
+    //     lastName: userInfo.lastName,
+    //     isGoogle: true,
+    //   });
+    //   return await this.signToken(cretedUser.id, cretedUser.email, false);
+    // } else {
+    //   if (!user.isGoogle) {
+    //     throw new ConflictException('Email address already exists');
+    //   }
+    //   return await this.signToken(user.id, user.email, false);
+    // }
   }
 
   async signToken(userId: number, email: string, isRefresh: boolean) {
