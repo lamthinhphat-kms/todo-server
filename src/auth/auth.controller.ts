@@ -46,7 +46,7 @@ export class AuthController {
     return await this.authService.loginWithGoogleWeb(token);
   }
 
-  @Post('google/login/mobile')
+  @Post('google/login/credential')
   async googleInfo(@Body('token') token: string) {
     return await this.authService.loginWithGoogle(token);
   }
