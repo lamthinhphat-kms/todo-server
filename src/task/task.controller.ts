@@ -8,6 +8,7 @@ import {
   Post,
   Put,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { TaskDto } from './task.dto';
 import { TaskService } from './task.service';
@@ -16,6 +17,7 @@ import { GetUser } from 'src/common/decorator/get-user.decorator';
 import { UserEntity } from 'src/user/user.entity';
 import { JwtGuard } from 'src/common/guard/jwt.guard';
 import { UserDto } from 'src/user/user.dto';
+import { CacheInterceptor } from '@nestjs/cache-manager';
 
 @UseGuards(JwtGuard)
 @Controller('tasks')

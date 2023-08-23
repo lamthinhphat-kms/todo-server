@@ -14,10 +14,14 @@ services:
       SECRET: super-secret
       GOOGLE_CLIENT_ID: 970731309100-8jba6nln6qd33fflqc4d9qqgm5r24ev3.apps.googleusercontent.com
       GOOGLE_CLIENT_SECRET: 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
+      REDIS_HOST: cache
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: eYVX7EwVmmxKPCDmwMtyKVge8oLd2t81
     volumes:
       - ./src:/app/src
     depends_on:
       - my-sql
+      - redis
     networks:
       - nodejss
 
@@ -34,6 +38,13 @@ services:
       - ./database/mysql:/var/lib/mysql
     networks:
       - nodejss
+  redis:
+    image: redis:7.2.0
+    ports:
+      - '6379:6379'
+    command: redis-server --save 20 1 --loglevel warning --requirepass eYVX7EwVmmxKPCDmwMtyKVge8oLd2t81
+    volumes:
+      - ./cache:/data
 
 networks:
   nodejss:

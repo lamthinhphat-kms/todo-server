@@ -6,11 +6,25 @@ import { AuthModule } from './auth/auth.module';
 import { UserEntity } from './user/user.entity';
 import { UserModule } from './user/user.module';
 import { ConfigModule } from '@nestjs/config';
+import { CacheInterceptor, CacheModule } from '@nestjs/cache-manager';
+import { APP_INTERCEPTOR } from '@nestjs/core';
+import { redisStore } from 'cache-manager-redis-store';
 
 @Module({
   imports: [
     ConfigModule.forRoot(),
-
+    CacheModule.register({
+      // @ts-ignore
+      store: async () =>
+        await redisStore({
+          socket: {
+            host: process.env.DB_HOST,
+            port: 6379,
+          },
+          password: process.env.REDIS_PASSWORD,
+        }),
+      isGlobal: true,
+    }),
     TypeOrmModule.forRoot({
       type: 'mysql',
       host: process.env.DB_HOST,
