@@ -9,5 +9,6 @@ import { LoggerService } from 'src/logger/logger.service';
   imports: [TypeOrmModule.forFeature([TaskEntity])],
   controllers: [TaskController],
   providers: [TaskService, LoggerService],
+  exports: [TaskService],
 })
 export class TaskModule {}

@@ -9,6 +9,7 @@ import { ConfigModule } from '@nestjs/config';
 import { CacheInterceptor, CacheModule } from '@nestjs/cache-manager';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import { redisStore } from 'cache-manager-redis-store';
+import { TaskGatewayModule } from './gateways/task.gateway.module';
 
 @Module({
   imports: [
@@ -38,6 +39,7 @@ import { redisStore } from 'cache-manager-redis-store';
     TaskModule,
     AuthModule,
     UserModule,
+    TaskGatewayModule,
   ],
   controllers: [],
   providers: [],

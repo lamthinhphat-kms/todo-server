@@ -61,6 +61,7 @@ export class TaskService extends BaseService<TaskEntity> {
       if (updateResult.affected == 0)
         throw new NotFoundException('Update failed');
       await this.cacheManager.del(`findTaskById:${taskId}OfUser:${userId}`);
+      await this.cacheManager.del(`findAllTask:${userId}`);
       return { message: 'Update task successfully' };
     } catch (error) {
       throw error;
