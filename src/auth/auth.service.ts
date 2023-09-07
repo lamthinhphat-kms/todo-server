@@ -82,7 +82,6 @@ export class AuthService extends BaseService<UserEntity> {
     userInfo.email = ticket.getPayload().email;
     userInfo.firstName = ticket.getPayload().family_name;
     userInfo.lastName = ticket.getPayload().given_name;
-    console.log(userInfo);
     const user = await this.userRepository.findOne({
       where: {
         email: userInfo.email,

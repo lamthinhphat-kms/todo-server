@@ -10,4 +10,8 @@ export class TaskDto extends BaseDto {
   @Expose()
   @IsOptional()
   isCompleted?: boolean;
+
+  @Expose()
+  @IsOptional()
+  deadline?: boolean;
 }

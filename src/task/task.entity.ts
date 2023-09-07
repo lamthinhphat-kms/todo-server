@@ -18,6 +18,12 @@ export class TaskEntity extends BaseEntity {
   @Column()
   isCompleted: boolean;
 
+  @Column({
+    type: 'datetime',
+    nullable: true,
+  })
+  deadline: Date;
+
   @ManyToOne((type) => UserEntity, (user) => user.tasks)
   @JoinColumn({ name: 'user_id' })
   user: UserEntity;

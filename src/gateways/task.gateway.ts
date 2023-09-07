@@ -30,7 +30,6 @@ export class TaskGateway {
     @MessageBody('sub') userId: number,
     @MessageBody('socketId') socketId: string,
   ): Promise<void> {
-    console.log(userId);
     if (socketId) {
       await this.server.in(socketId).socketsJoin(`task - ${userId}`);
     }
